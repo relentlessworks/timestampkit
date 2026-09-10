@@ -1,0 +1,5 @@
+/timestampkit
+*.exe
+*.db
+*.log
+.env
