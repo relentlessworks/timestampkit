@@ -5,6 +5,7 @@ on:
     branches: [main]
     paths:
       - 'VERSION'
+  workflow_dispatch:
 
 jobs:
   release:
@@ -31,6 +32,46 @@ jobs:
             echo "exists=false" >> $GITHUB_OUTPUT
           fi
 
+      - name: Set up Go
+        if: steps.check.outputs.exists == 'false'
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.23'
+
+      - name: Cross-compile binaries
+        if: steps.check.outputs.exists == 'false'
+        env:
+          CGO_ENABLED: 0
+        run: |
+          mkdir -p dist
+          targets=(
+            "linux amd64"
+            "linux arm64"
+            "darwin amd64"
+            "darwin arm64"
+            "windows amd64"
+          )
+          for target in "${targets[@]}"; do
+            set -- $target
+            ext=""
+            if [ "$1" = "windows" ]; then ext=".exe"; fi
+            GOOS=$1 GOARCH=$2 go build -ldflags "-s -w" -o "dist/timestampkit-$1-$2${ext}" ./cmd/timestampkit
+          done
+
+      - name: Package tarballs
+        if: steps.check.outputs.exists == 'false'
+        run: |
+          cd dist
+          for f in timestampkit-*; do
+            tar -czf "$f.tar.gz" "$f"
+          done
+
+      - name: Generate checksums
+        if: steps.check.outputs.exists == 'false'
+        run: |
+          cd dist
+          sha256sum *.tar.gz > checksums.txt
+
       - name: Create tag and release
         if: steps.check.outputs.exists == 'false'
         uses: softprops/action-gh-release@v2
@@ -40,3 +81,15 @@ jobs:
           generate_release_notes: true
           draft: false
           prerelease: false
+          files: dist/*.tar.gz
+          body: |
+            ## timestampkit v${{ steps.version.outputs.version }}
+
+            Agentic-first timestamp conversion and date math service.
+
+            ### Downloads
+            - `timestampkit-linux-amd64.tar.gz` — Linux 64-bit
+            - `timestampkit-linux-arm64.tar.gz` — Linux ARM64
+            - `timestampkit-darwin-amd64.tar.gz` — macOS Intel
+            - `timestampkit-darwin-arm64.tar.gz` — macOS Apple Silicon
+            - `timestampkit-windows-amd64.tar.gz` — Windows 64-bit

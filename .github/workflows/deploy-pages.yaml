@@ -8,9 +8,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
-  pages: write
-  id-token: write
+  contents: write
 
 concurrency:
   group: "pages"
@@ -18,21 +16,37 @@ concurrency:
 
 jobs:
   deploy:
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-
-      - name: Setup Pages
-        uses: actions/configure-pages@v5
-
-      - name: Upload artifact
-        uses: actions/upload-pages-artifact@v3
         with:
-          path: ./docs
+          fetch-depth: 0
 
-      - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v4
+      - name: Deploy docs to gh-pages branch
+        run: |
+          git config user.name "Relentless"
+          git config user.email "noreply@relentlessworks.com"
+
+          # Save docs to temp dir
+          cp -r docs /tmp/docs-backup
+
+          # Checkout orphan gh-pages branch
+          git checkout --orphan gh-pages
+          git reset --hard
+
+          # Clean everything
+          git clean -fdx
+
+          # Copy docs back
+          cp -r /tmp/docs-backup/* .
+
+          # Remove non-docs files
+          rm -f Makefile go.mod go.sum VERSION
+          rm -rf cmd internal .github
+
+          # Add and commit
+          git add -A
+          git commit -m "Deploy docs to gh-pages"
+
+          # Force push
+          git push origin gh-pages --force
