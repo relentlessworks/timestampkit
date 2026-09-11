@@ -52,10 +52,10 @@ curl -H "Authorization: Bearer abc123..." localhost:7290/now
 
 - Unix seconds: `1694352000`
 - Unix milliseconds: `1694352000000`
-- ISO 8601: `2023-09-10T12:00:00Z`
-- RFC 2822: `Mon, 10 Sep 2023 12:00:00 UTC`
+- ISO 8601: `2023-09-10T13:20:00Z`
+- RFC 2822: `Mon, 10 Sep 2023 13:20:00 UTC`
 - Date only: `2023-09-10`
-- Date+time: `2023-09-10 12:00:00`
+- Date+time: `2023-09-10 13:20:00`
 - `now` for current time
 
 ### Duration Format
@@ -77,12 +77,12 @@ Or use Go time layout: `2006-01-02 15:04:05`
 
 Plain text by default (key=value pairs, one record per line):
 ```
-unix=1694352000 iso8601=2023-09-10T12:00:00Z date=2023-09-10 time=12:00:00 weekday=Sunday
+unix=1694352000 iso8601=2023-09-10T13:20:00Z date=2023-09-10 time=13:20:00 weekday=Sunday
 ```
 
 JSON on demand via `Accept: application/json` or `?format=json`:
 ```json
-{"unix":1694352000,"iso8601":"2023-09-10T12:00:00Z","date":"2023-09-10"}
+{"unix":1694352000,"iso8601":"2023-09-10T13:20:00Z","date":"2023-09-10"}
 ```
 
 Errors include hints:

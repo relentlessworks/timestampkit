@@ -144,7 +144,7 @@ func (s *Server) handleConvert(w http.ResponseWriter, r *http.Request) {
 	tz := r.URL.Query().Get("tz")
 	t, err := timeutil.ParseTimestampWithTZ(input, tz)
 	if err != nil {
-		writeError(w, r, http.StatusBadRequest, "could not parse timestamp: "+input, "use a Unix timestamp (e.g. 1694352000), ISO 8601 (e.g. 2023-09-10T12:00:00Z), or 'now'")
+		writeError(w, r, http.StatusBadRequest, "could not parse timestamp: "+input, "use a Unix timestamp (e.g. 1694352000), ISO 8601 (e.g. 2023-09-10T13:20:00Z), or 'now'")
 		return
 	}
 	info := timeutil.Info(t)
@@ -349,12 +349,12 @@ func (s *Server) handleParse(w http.ResponseWriter, r *http.Request) {
 	}
 	input := strings.TrimSpace(string(body))
 	if input == "" {
-		writeError(w, r, http.StatusBadRequest, "date string is required", "send a date string as the request body, e.g. '2023-09-10 12:00:00' or 'Mon, 10 Sep 2023 12:00:00 UTC'")
+		writeError(w, r, http.StatusBadRequest, "date string is required", "send a date string as the request body, e.g. '2023-09-10 13:20:00' or 'Mon, 10 Sep 2023 13:20:00 UTC'")
 		return
 	}
 	t, err := timeutil.ParseTimestamp(input)
 	if err != nil {
-		writeError(w, r, http.StatusBadRequest, "could not parse date string: "+input, "try formats like '2023-09-10', '2023-09-10 12:00:00', '2023-09-10T12:00:00Z', or 'Mon, 10 Sep 2023 12:00:00 UTC'")
+		writeError(w, r, http.StatusBadRequest, "could not parse date string: "+input, "try formats like '2023-09-10', '2023-09-10 13:20:00', '2023-09-10T13:20:00Z', or 'Mon, 10 Sep 2023 13:20:00 UTC'")
 		return
 	}
 	info := timeutil.Info(t)
